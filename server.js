@@ -18,7 +18,7 @@ app.get("/download",(req,res)=>{
   return res.send("Envie uma URL")
  }
 
- exec(`yt-dlp -f best -o video.mp4 ${url}`, (error, stdout, stderr)=>{
+ exec(`yt-dlp -f best -o video.mp4 ${url}`, (error)=>{
 
   if(error){
    console.log(error)
@@ -30,6 +30,7 @@ app.get("/download",(req,res)=>{
  })
 
 })
+
 app.get("/viral", async (req,res)=>{
 
  try{
