@@ -1,62 +1,58 @@
-const express = require("express")
-const axios = require("axios")
-const { exec } = require("child_process")
+const express = require("express");
+const axios = require("axios");
+const { execFile } = require("child_process");
+const path = require("path");
 
-const app = express()
+const app = express();
+const PORT = process.env.PORT || 3000;
+const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
-const APIFY_TOKEN = process.env.APIFY_TOKEN
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (req,res)=>{
- res.send("Servidor viral funcionando")
-})
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
-app.get("/download",(req,res)=>{
+app.get("/download", (req, res) => {
+  const url = req.query.url;
 
- const url = req.query.url
-
- if(!url){
-  return res.send("Envie uma URL")
- }
-
- exec(`yt-dlp -f best -o video.mp4 ${url}`, (error)=>{
-
-  if(error){
-   console.log(error)
-   return res.send("Erro ao baixar vídeo")
+  if (!url) {
+    return res.status(400).send("Envie uma URL");
   }
 
-  res.download("video.mp4")
+  execFile("yt-dlp", ["-f", "best", "-o", "video.mp4", url], (error) => {
+    if (error) {
+      console.log(error);
+      return res.status(500).send("Erro ao baixar vídeo");
+    }
 
- })
+    res.download("video.mp4");
+  });
+});
 
-})
-
-app.get("/viral", async (req,res)=>{
-
- try{
-
- const query = req.query.q || "viral"
-
- const response = await axios.post(
-  `https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
-  {
-   searchQueries: [query],
-   maxItems: 20
+app.get("/viral", async (req, res) => {
+  if (!APIFY_TOKEN) {
+    return res.status(500).send("APIFY_TOKEN não configurado");
   }
- )
 
- res.json(response.data)
+  try {
+    const query = req.query.q || "viral";
 
- }catch(error){
+    const response = await axios.post(
+      `https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+      {
+        searchQueries: [query],
+        maxItems: 20
+      }
+    );
 
- console.log("Erro Apify:", error.response?.data || error.message)
+    res.json(response.data);
+  } catch (error) {
+    console.log("Erro Apify:", error.response?.data || error.message);
+    res.status(500).send("Erro ao buscar vídeos virais");
+  }
+});
 
- res.send("Erro ao buscar vídeos virais")
-
- }
-
-})
-
-app.listen(3000, ()=>{
- console.log("Servidor rodando")
-})
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
