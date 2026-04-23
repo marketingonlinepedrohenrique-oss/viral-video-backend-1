@@ -23,3 +23,18 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
 });
+app.get("/test", (req, res) => {
+
+  const { exec } = require("child_process");
+
+  exec("yt-dlp --version", (error, stdout, stderr) => {
+
+    if (error) {
+      return res.send("yt-dlp não instalado");
+    }
+
+    res.send("yt-dlp versão: " + stdout);
+
+  });
+
+});
