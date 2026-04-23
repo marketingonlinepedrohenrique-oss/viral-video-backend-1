@@ -30,7 +30,6 @@ app.get("/download",(req,res)=>{
  })
 
 })
-
 app.get("/viral", async (req,res)=>{
 
  try{
@@ -38,10 +37,10 @@ app.get("/viral", async (req,res)=>{
  const query = req.query.q || "viral"
 
  const response = await axios.post(
-  `https://api.apify.com/v2/acts/apify~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+  `https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
   {
    searchQueries: [query],
-   resultsPerPage: 20
+   maxItems: 20
   }
  )
 
@@ -49,7 +48,8 @@ app.get("/viral", async (req,res)=>{
 
  }catch(error){
 
- console.log(error.response?.data || error.message)
+ console.log("Erro Apify:", error.response?.data || error.message)
+
  res.send("Erro ao buscar vídeos virais")
 
  }
