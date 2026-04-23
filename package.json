@@ -1,13 +1,19 @@
-{
-  "name": "viral-video-backend",
-  "version": "1.0.0",
-  "description": "Backend para baixar e buscar vídeos virais",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0"
-  }
-}
+FROM node:18-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install yt-dlp --break-system-packages
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
