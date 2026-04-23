@@ -1,33 +1,36 @@
-const express = require("express")
-const { exec } = require("child_process")
+import express from "express";
+import axios from "axios";
+import cors from "cors";
+import dotenv from "dotenv";
 
-const app = express()
+dotenv.config();
 
-app.get("/", (req,res)=>{
- res.send("Vídeo viral backend rodando")
-})
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.get("/download",(req,res)=>{
+const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
- const url = req.query.url
+app.post("/gerar", async (req, res) => {
+  try {
 
- if(!url){
-  return res.send("Envie uma URL")
- }
+    const { prompt } = req.body;
 
- exec(`yt-dlp -f best -o video.mp4 ${url}`, (error, stdout, stderr)=>{
+    const response = await axios.post(
+      `https://api.apify.com/v2/acts/apify~openai/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+      {
+        prompt: prompt
+      }
+    );
 
-  if(error){
-   console.log(error)
-   return res.send("Erro ao baixar vídeo")
+    res.json(response.data);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: "Erro ao gerar resposta" });
   }
+});
 
-  res.download("video.mp4")
-
- })
-
-})
-
-app.listen(3000, ()=>{
- console.log("Servidor rodando")
-})
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
+});
