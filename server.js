@@ -4,6 +4,8 @@ const { exec } = require("child_process")
 
 const app = express()
 
+const APIFY_TOKEN = process.env.APIFY_TOKEN
+
 app.get("/", (req,res)=>{
  res.send("Servidor viral funcionando")
 })
@@ -26,6 +28,23 @@ app.get("/download",(req,res)=>{
   res.download("video.mp4")
 
  })
+
+})
+
+app.get("/viral", async (req,res)=>{
+
+ try{
+
+ const response = await axios.get(`https://api.apify.com/v2/acts/apify~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`)
+
+ res.json(response.data)
+
+ }catch(error){
+
+ console.log(error)
+ res.send("Erro ao buscar vídeos virais")
+
+ }
 
 })
 
