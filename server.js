@@ -35,13 +35,21 @@ app.get("/viral", async (req,res)=>{
 
  try{
 
- const response = await axios.get(`https://api.apify.com/v2/acts/apify~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`)
+ const query = req.query.q || "viral"
+
+ const response = await axios.post(
+  `https://api.apify.com/v2/acts/apify~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+  {
+   searchQueries: [query],
+   resultsPerPage: 20
+  }
+ )
 
  res.json(response.data)
 
  }catch(error){
 
- console.log(error)
+ console.log(error.response?.data || error.message)
  res.send("Erro ao buscar vídeos virais")
 
  }
