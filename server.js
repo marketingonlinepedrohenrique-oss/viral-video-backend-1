@@ -1,62 +1,34 @@
-import express from "express";
-import axios from "axios";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const APIFY_TOKEN = process.env.APIFY_TOKEN;
-
-app.post("/gerar", async (req, res) => {
-  try {
-
-    const { prompt } = req.body;
-
-    const response = await axios.post(
-      `https://api.apify.com/v2/acts/apify~openai/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
-      {
-        prompt: prompt
-      }
-    );
-
-    res.json(response.data);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: "Erro ao gerar resposta" });
-  }
-});
-
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
-});
+const express = require("express")
 const axios = require("axios")
+const { exec } = require("child_process")
 
-app.get("/viral", async (req,res)=>{
+const app = express()
 
- try{
+app.get("/", (req,res)=>{
+ res.send("Servidor viral funcionando")
+})
 
-  const response = await axios.post(
-   "https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items",
-   {
-    search: "viral",
-    maxVideos: 10
-   },
-   {
-    params: {
-     token: process.env.APIFY_TOKEN
-    }
-   }
-  )
+app.get("/download",(req,res)=>{
 
-  res.json(response.data)
+ const url = req.query.url
 
- }catch(error){
-  res.send("Erro ao buscar vídeos virais")
+ if(!url){
+  return res.send("Envie uma URL")
  }
 
+ exec(`yt-dlp -f best -o video.mp4 ${url}`, (error, stdout, stderr)=>{
+
+  if(error){
+   console.log(error)
+   return res.send("Erro ao baixar vídeo")
+  }
+
+  res.download("video.mp4")
+
+ })
+
+})
+
+app.listen(3000, ()=>{
+ console.log("Servidor rodando")
 })
