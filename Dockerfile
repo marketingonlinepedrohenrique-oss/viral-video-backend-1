@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install yt-dlp --break-system-packages
 
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
 RUN npm install
 
