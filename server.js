@@ -34,3 +34,29 @@ app.post("/gerar", async (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
 });
+const axios = require("axios")
+
+app.get("/viral", async (req,res)=>{
+
+ try{
+
+  const response = await axios.post(
+   "https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items",
+   {
+    search: "viral",
+    maxVideos: 10
+   },
+   {
+    params: {
+     token: process.env.APIFY_TOKEN
+    }
+   }
+  )
+
+  res.json(response.data)
+
+ }catch(error){
+  res.send("Erro ao buscar vídeos virais")
+ }
+
+})
