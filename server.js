@@ -1,16 +1,13 @@
 const express = require("express");
 const axios = require("axios");
 const { execFile } = require("child_process");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
-app.use(express.static(path.join(__dirname, "public")));
-
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("Servidor viral funcionando");
 });
 
 app.get("/download", (req, res) => {
