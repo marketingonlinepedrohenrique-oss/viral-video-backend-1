@@ -1,19 +1,17 @@
-FROM node:18-slim
+FROM node:18
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 python3-pip ffmpeg
 
 RUN pip3 install yt-dlp --break-system-packages
 
-COPY package.json ./
+COPY package.json .
 
 RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["npm","start"]
